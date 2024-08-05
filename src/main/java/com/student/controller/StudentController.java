@@ -31,7 +31,7 @@ public class StudentController {
 
     @PostMapping("/create-students")
     public ResponseEntity<Student> createStudent(@RequestBody Student student) {
-        studentService.registerStudent(student); // Yeni kayıt metodunu kullan
+        studentService.registerStudent(student);
         return ResponseEntity.ok(student);
     }
 
