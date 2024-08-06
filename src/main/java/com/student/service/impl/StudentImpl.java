@@ -46,6 +46,8 @@ public class StudentImpl implements StudentService {
             student.setAge(studentDetails.getAge());
             student.setGpa(studentDetails.getGpa());
             student.setSection(studentDetails.getSection());
+            student.setMidterm(studentDetails.getMidterm());
+            student.setFinalExam(studentDetails.getFinalExam());
             return studentRepository.save(student);
         });
     }
@@ -78,5 +80,39 @@ public class StudentImpl implements StudentService {
             student.setSection("C");
         }
         return studentRepository.save(student);
+    }
+
+    @Override
+    public Student calculateGradeAndGPA(Long studentId) {
+        Optional<Student> studentOpt = studentRepository.findById(studentId);
+        if (studentOpt.isPresent()) {
+            Student student = studentOpt.get();
+            double midterm = student.getMidterm();
+            double finalExam = student.getFinalExam();
+            double finalGrade = (midterm * 0.6) + (finalExam * 0.4);
+
+            if (finalExam < 35 || finalGrade < 35) {
+                student.setSection("F");
+                studentRepository.save(student);
+                return student;
+            } else {
+                double gpaMultiplier = 2.0;
+                if (finalGrade >= 50 && finalGrade < 60) {
+                    gpaMultiplier = 2.5;
+                } else if (finalGrade >= 60 && finalGrade < 70) {
+                    gpaMultiplier = 3.0;
+                } else if (finalGrade >= 70 && finalGrade < 90) {
+                    gpaMultiplier = 3.5;
+                } else if (finalGrade >= 90 && finalGrade <= 100) {
+                    gpaMultiplier = 4.0;
+                }
+
+                double newGPA = (student.getGpa() * 0.8) + (gpaMultiplier * 0.2);
+                student.setGpa(newGPA);
+            }
+
+            return studentRepository.save(student);
+        }
+        return null;
     }
 }

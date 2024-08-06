@@ -18,33 +18,32 @@ public class StudentController {
         this.studentService = studentService;
     }
 
-    @GetMapping("/get-all-students")
+    @GetMapping
     public List<Student> getAllStudents() {
         return studentService.getAllStudents();
     }
 
-    @GetMapping("/get-students/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<Student> getStudentById(@PathVariable Long id) {
         Optional<Student> student = studentService.getStudentById(id);
         return student.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PostMapping("/create-students")
-    public ResponseEntity<Student> createStudent(@RequestBody Student student) {
-        studentService.registerStudent(student);
-        return ResponseEntity.ok(student);
+    @PostMapping
+    public Student createStudent(@RequestBody Student student) {
+        return studentService.createStudent(student);
     }
 
-    @PutMapping("/update-students/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<Student> updateStudent(@PathVariable Long id, @RequestBody Student studentDetails) {
         Optional<Student> updatedStudent = studentService.updateStudent(id, studentDetails);
         return updatedStudent.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/delete-students/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{studentId}/courses/{courseId}")
@@ -52,4 +51,31 @@ public class StudentController {
         studentService.assignCourseToStudent(studentId, courseId);
         return ResponseEntity.ok().build();
     }
+//öğrencinin notunu girmek ve güncellemek için kullanırız
+    @PostMapping("/{studentId}/exams")
+    public ResponseEntity<Student> updateExams(
+            @PathVariable Long studentId,
+            @RequestParam Double midterm,
+            @RequestParam Double finalExam) {
+        Optional<Student> studentOpt = studentService.getStudentById(studentId);
+        if (studentOpt.isPresent()) {
+            Student student = studentOpt.get();
+            student.setMidterm(midterm);
+            student.setFinalExam(finalExam);
+            studentService.updateStudent(studentId, student);
+            return ResponseEntity.ok(student);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+//girilen notların gpa ya etki etmesi için kullanılır
+@PostMapping("/{studentId}/calculate")
+public ResponseEntity<Student> calculateGradeAndGPA(@PathVariable Long studentId) {
+    Student student = studentService.calculateGradeAndGPA(studentId);
+    if (student != null) {
+        return ResponseEntity.ok(student);
+    } else {
+        return ResponseEntity.notFound().build();
+    }
+}
 }
