@@ -2,6 +2,7 @@ package com.student.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -25,8 +26,14 @@ public class Student {
     @Column(name = "gpa", nullable = false)
     private double gpa;
 
-    @Column(name = "section", nullable = false)
-    private String section; // A, B veya C sınıfı bilgisi
+    @Column(name = "midterm")
+    private Double midterm;
+
+    @Column(name = "final_exam")
+    private Double finalExam;
+
+    @Column(name = "section")
+    private String section;
 
     @ManyToMany
     @JoinTable(
@@ -34,9 +41,9 @@ public class Student {
             joinColumns = @JoinColumn(name = "student_id"),
             inverseJoinColumns = @JoinColumn(name = "course_id")
     )
-    @JsonManagedReference
     private Set<Course> courses = new HashSet<>();
 
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -77,6 +84,22 @@ public class Student {
         this.gpa = gpa;
     }
 
+    public Double getMidterm() {
+        return midterm;
+    }
+
+    public void setMidterm(Double midterm) {
+        this.midterm = midterm;
+    }
+
+    public Double getFinalExam() {
+        return finalExam;
+    }
+
+    public void setFinalExam(Double finalExam) {
+        this.finalExam = finalExam;
+    }
+
     public String getSection() {
         return section;
     }
@@ -103,13 +126,15 @@ public class Student {
                 Objects.equals(id, student.id) &&
                 Objects.equals(firstName, student.firstName) &&
                 Objects.equals(lastName, student.lastName) &&
+                Objects.equals(midterm, student.midterm) &&
+                Objects.equals(finalExam, student.finalExam) &&
                 Objects.equals(section, student.section) &&
                 Objects.equals(courses, student.courses);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, age, gpa, section);
+        return Objects.hash(id, firstName, lastName, age, gpa, midterm, finalExam, section, courses);
     }
 
     @Override
@@ -120,6 +145,8 @@ public class Student {
                 ", lastName='" + lastName + '\'' +
                 ", age=" + age +
                 ", gpa=" + gpa +
+                ", midterm=" + midterm +
+                ", finalExam=" + finalExam +
                 ", section='" + section + '\'' +
                 '}';
     }
